@@ -40,15 +40,6 @@ Ainv=Ainv-DiagonalMatrix[Diagonal[Ainv]];
 Ainv(*/Ainv[[1,2]]*)]
 
 
-(*This reverses the qubit order - implements a swap gate for pairs of qubits - 12345 => 54321*)
-GenerateSwapMatrix[set_]:=Module[
-{F=ConstantArray[0,{Length[set],Length[set]}]},
-Do[
-{{mm}}=Position[set,Reverse[set[[nn]]]];
-F[[nn,mm]]=1,{nn,Length[set]}];F
-]
-
-
 (*spin-spin coupling interaction*)
 \[CapitalPhi]2[T_]:=MatrixExp[I T/2 (J[[1,2]] KP[\[Sigma]z,\[Sigma]z])];
 \[CapitalPhi]3[T_]:=MatrixExp[I T/2 (J[[1,2]] KP[\[Sigma]z,\[Sigma]z,id] + J[[1,3]] KP[\[Sigma]z,id,\[Sigma]z] + J[[2,3]] KP[id,\[Sigma]z,\[Sigma]z])];

@@ -7,6 +7,7 @@
 applyF[F_,k_,ntotal_]:=KP[Sequence@@CArr[ID[2],k-1],F,Sequence@@CArr[ID[2],ntotal-k]]
 
 {id, \[Sigma]x,\[Sigma]y,\[Sigma]z}=PauliMatrix[#]&/@{0,1,2,3};
+Clear[x,y,z]
 {\[Sigma][x],\[Sigma][y],\[Sigma][z]}={\[Sigma]x,\[Sigma]y,\[Sigma]z}
 
 (*Applies the Pauli matrix on qubit k out of ntotal*)
@@ -16,14 +17,33 @@ applyF[F_,k_,ntotal_]:=KP[Sequence@@CArr[ID[2],k-1],F,Sequence@@CArr[ID[2],ntota
 H=1/Sqrt[2] {{1,1},{1,-1}};
 
 (*Rotation of a single qubit*)
-Clear[\[Theta],\[Phi]]
-R[\[Theta]_,\[Phi]_]=MatrixExp[-I \[Theta]/2 (\[Sigma]x Cos[\[Phi]]+\[Sigma]y Sin[\[Phi]])]//FS;
+R[\[Theta]_,\[Phi]_]:=MatrixExp[-I \[Theta]/2 (\[Sigma]x Cos[\[Phi]]+\[Sigma]y Sin[\[Phi]])]//FS;
 
 (*Toffoli gate*)
 Toff={{1,0,0,0,0,0,0,0},{0,1,0,0,0,0,0,0},{0,0,1,0,0,0,0,0},{0,0,0,1,0,0,0,0},{0,0,0,0,1,0,0,0},{0,0,0,0,0,1,0,0},{0,0,0,0,0,0,0,1},{0,0,0,0,0,0,1,0}};
 
 (*The discrete Fourier transform*)
 DFT[Nions_]:=Normalize[#]&/@Table[Exp[2 I \[Pi] (j-1) (k-1)/2^Nions],{j,2^Nions},{k,2^Nions}]//N;
+
+(*Swaps qubits i and j out of ntotal*)
+swap[i_,j_,ntotal_]:=
+Module[{F=ConstantArray[0,{2^ntotal,2^ntotal}],el,set,mm},
+set=basis[ntotal];
+Do[
+el=set[[nn]];
+el[[{i,j}]]=el[[{j,i}]];
+{{mm}}=Position[set,el];
+F[[nn,mm]]=1,
+{nn,Length[set]}];
+F]
+
+(*Reverse the qubit order - implements a swap gate for mirror-positioned qubits - 12345 => 54321*)
+swapAllQubits[set_]:=
+Module[{F=ConstantArray[0,{Length[set],Length[set]}],mm},
+Do[
+{{mm}}=Position[set,Reverse[set[[nn]]]];
+F[[nn,mm]]=1,{nn,Length[set]}];F
+]
 
 
 (*QUANTUM STATES*)
